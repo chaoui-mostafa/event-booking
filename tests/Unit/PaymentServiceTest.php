@@ -106,7 +106,9 @@ class PaymentServiceTest extends TestCase
             'ticket_id' => $ticket->id,
             'total_amount' => 200.00,
             'status' => 'confirmed',
-            'booking_reference' => 'BK-' . uniqid()
+            'booking_reference' => 'BK-' . uniqid(),
+            'quantity' => 1
+
         ]);
 
         $payment = Payment::create([
@@ -124,8 +126,22 @@ class PaymentServiceTest extends TestCase
 
     public function test_it_cannot_refund_pending_payment()
     {
+        $user = User::factory()->create();
+        $event = Event::factory()->published()->create();
+        $ticket = Ticket::factory()->create(['event_id' => $event->id]);
+
+        $booking = Booking::create([
+            'user_id' => $user->id,
+            'event_id' => $event->id,
+            'ticket_id' => $ticket->id,
+            'total_amount' => 100.00,
+            'status' => 'confirmed',
+            'booking_reference' => 'BK-' . uniqid(),
+            'quantity' => 1
+        ]);
+
         $payment = Payment::create([
-            'booking_id' => 1,
+            'booking_id' => $booking->id,
             'amount' => 100.00,
             'payment_method' => 'credit_card',
             'status' => 'pending',
